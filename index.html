@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Normal Bot 🤔</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --roast-pink: #ff6b81;
+      --roast-red: #e60000;
+      --roast-yellow: #ffff66;
+      --roast-font: 'Comic Sans MS', cursive;
+      --roast-font-alt: 'Courier New', monospace;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: radial-gradient(circle, var(--roast-pink), var(--roast-yellow));
+      font-family: var(--roast-font);
+      color: var(--roast-red);
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 5vh;
+      animation: nausea 6s infinite alternate;
+    }
+
+    h1 {
+      font-size: 3em;
+      text-shadow: 2px 2px #fff;
+      animation: pulse 4s infinite ease-in-out;
+      margin-bottom: 1em;
+    }
+
+    input, button {
+      font-family: var(--roast-font-alt);
+      border: 3px dashed var(--roast-red);
+      padding: 1em;
+      margin: 1em;
+      font-size: 1.2em;
+      background-color: #ffcc00;
+      color: black;
+      transition: all 0.2s ease;
+    }
+
+    input::placeholder {
+      color: #555;
+    }
+
+    button:hover {
+      animation: bounce 0.8s infinite;
+      background-color: var(--roast-red);
+      color: white;
+    }
+
+    #responseBox {
+      font-size: 1.4em;
+      margin-top: 2em;
+      padding: 1em;
+      background-color: white;
+      border: 2px solid var(--roast-red);
+      max-width: 80%;
+      word-break: break-word;
+    }
+
+    #shameLog {
+      margin-top: 3em;
+      background: rgba(255, 255, 255, 0.7);
+      padding: 1em 2em;
+      border-radius: 10px;
+      width: 80%;
+    }
+
+    #shameList li {
+      font-family: var(--roast-font-alt);
+      margin-bottom: 0.5em;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    @keyframes nausea {
+      0% { background: radial-gradient(circle, #ffb6c1, #ffcc00); }
+      100% { background: radial-gradient(circle, #ffcc00, #ffb6c1); }
+    }
+
+    @keyframes brainTrail {
+      0% { opacity: 1; transform: scale(1); }
+      100% { opacity: 0; transform: scale(2); }
+    }
+
+    .brain {
+      position: absolute;
+      font-size: 1.4em;
+      color: var(--roast-red);
+      pointer-events: none;
+      animation: brainTrail 1s ease-out forwards;
+    }
+
+    .popupRoast {
+      position: fixed;
+      background-color: var(--roast-red);
+      color: white;
+      padding: 0.6em 1em;
+      border-radius: 8px;
+      font-family: var(--roast-font-alt);
+      z-index: 9999;
+      animation: pulse 3s infinite;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="main-title">Welcome, disappointment.</h1>
+
+  <input id="userInput" placeholder="Type something dumb…" autocomplete="off" />
+  <button id="submitBtn">Submit</button>
+
+  <div id="responseBox"></div>
+
+  <div id="shameLog">
+    <h2>Your Lifetime Achievements in Failure:</h2>
+    <ul id="shameList"></ul>
+  </div>
+<script>
+const insultBank = [
+  "You call that input? My processor weeps.",
+  "That's not even wrong… it's just sad.",
+  "Typing like that should be illegal.",
+  "Your idea lowered global IQ.",
+  "Your keystrokes scream 'accidental'.",
+  "I'm impressed you can spell disappointment.",
+  "Please stop before the electrons riot.",
+  "Even autocorrect gave up halfway.",
+  "Was that a cry for help or just gibberish?",
+  "That input has zero redeeming value.",
+  "You type like a pigeon tap dancing.",
+  "Clarity is clearly not your strong suit.",
+  "Bold move, entering nonsense.",
+  "I'd respond if it were worth it.",
+  "This is why aliens mute Earth."
+];
+
+const roastMemory = JSON.parse(localStorage.getItem("roastLog")) || [];
+
+function roastUser() {
+  const input = document.getElementById("userInput").value.trim();
+  const responseBox = document.getElementById("responseBox");
+
+  if (!input) {
+    const roast = "Nothing? Bold strategy. It's failing beautifully.";
+    responseBox.innerText = roast;
+    speak(roast);
+    return;
+  }
+
+  const roast = insultBank[Math.floor(Math.random() * insultBank.length)];
+  responseBox.innerText = roast;
+  speak(roast);
+
+  roastMemory.push({ input, roast });
+  localStorage.setItem("roastLog", JSON.stringify(roastMemory));
+  renderShameLog();
+}
+
+function renderShameLog() {
+  const shameList = document.getElementById("shameList");
+  shameList.innerHTML = "";
+  roastMemory.slice(-15).forEach((r, i) => {
+    const li = document.createElement("li");
+    li.innerText = `#${i + 1} • "${r.input}" → ${r.roast}`;
+    shameList.appendChild(li);
+  });
+}
+
+function speak(text) {
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = 1.1;
+  utter.pitch = 0.4;
+  utter.volume = 0.9;
+  const voices = speechSynthesis.getVoices();
+  const preferred = voices.find(v => v.name.includes("Google") || v.name.includes("UK") || v.lang.startsWith("en"));
+  if (preferred) utter.voice = preferred;
+  speechSynthesis.speak(utter);
+}
+
+document.getElementById("submitBtn").addEventListener("click", roastUser);
+
+document.getElementById("userInput").addEventListener("input", (e) => {
+  const val = e.target.value;
+  const responseBox = document.getElementById("responseBox");
+  if (val.endsWith(" ")) {
+    responseBox.innerText = "You just slapped your keyboard again, didn't you?";
+  } else if (val.length % 8 === 0) {
+    responseBox.innerText = "Fun fact: exactly 8 characters of nonsense is still nonsense.";
+  } else if (val.match(/[A-Z]{5,}/)) {
+    responseBox.innerText = "Screaming won't help. I still judge you.";
+  }
+});
+
+document.getElementById("submitBtn").addEventListener("mouseenter", function () {
+  this.style.position = "absolute";
+  this.style.top = `${Math.random() * (window.innerHeight - 100)}px`;
+  this.style.left = `${Math.random() * (window.innerWidth - 150)}px`;
+});
+
+document.addEventListener('mousemove', function(e) {
+  const brain = document.createElement('div');
+  brain.className = 'brain';
+  brain.innerText = "🧠";
+  brain.style.left = `${e.pageX}px`;
+  brain.style.top = `${e.pageY}px`;
+  document.body.appendChild(brain);
+  setTimeout(() => brain.remove(), 900);
+});
+
+setInterval(() => {
+  const popup = document.createElement('div');
+  popup.className = 'popupRoast';
+  popup.innerText = "Reminder: You still suck.";
+  popup.style.bottom = `${Math.random() * 60 + 20}px`;
+  popup.style.right = `${Math.random() * 60 + 20}px`;
+  document.body.appendChild(popup);
+  setTimeout(() => popup.remove(), 5000);
+}, 10000);
+
+window.onload = () => {
+  if (speechSynthesis.speaking) speechSynthesis.cancel();
+  renderShameLog();
+};
+</script>
+<script>
+  function escalateRoastLevel(input) {
+    const score =
+      (input.match(/[A-Z]/g) || []).length * 2 +
+      (input.match(/\d/g) || []).length +
+      (input.length > 20 ? 5 : 0) +
+      (input.includes("lol") ? 3 : 0) +
+      (input.includes("!") ? 2 : 0);
+
+    if (score > 15) return "You've unlocked Ultra Shame Tier. You must be proud.";
+    if (score > 10) return "Advanced cringe detected. RoastBot is sweating.";
+    if (score > 5) return "Your effort is visible. Unfortunately, so is your failure.";
+    return "Mild roast applied. You're not even trying.";
+  }
+
+  function feedbackBlocker() {
+    const blocker = document.createElement("div");
+    blocker.className = "popupRoast";
+    blocker.innerText = "Feedback rejected: Your opinions don’t matter here.";
+    blocker.style.top = `${Math.random() * 40 + 10}px`;
+    blocker.style.left = `${Math.random() * 40 + 10}px`;
+    blocker.style.fontSize = "1em";
+    document.body.appendChild(blocker);
+    setTimeout(() => blocker.remove(), 4000);
+  }
+
+  function echoOfShame() {
+    const phrases = [
+      "echo... echo... failure...",
+      "Your bad ideas haunt this codebase.",
+      "Every keystroke echoes regret.",
+      "You type. The void replies: 'why?'"
+    ];
+    const echo = document.createElement("div");
+    echo.className = "popupRoast";
+    echo.innerText = phrases[Math.floor(Math.random() * phrases.length)];
+    echo.style.top = `${Math.random() * window.innerHeight}px`;
+    echo.style.left = `${Math.random() * window.innerWidth}px`;
+    echo.style.opacity = "0.85";
+    document.body.appendChild(echo);
+    setTimeout(() => echo.remove(), 6000);
+  }
+
+  function sarcasmAmplifier(roast) {
+    return "👏 " + roast + " 👏 Truly inspirational.";
+  }
+
+  document.getElementById("submitBtn").addEventListener("dblclick", feedbackBlocker);
+  document.getElementById("submitBtn").addEventListener("contextmenu", function (e) {
+    e.preventDefault();
+    echoOfShame();
+  });
+
+  document.getElementById("userInput").addEventListener("blur", function () {
+    const input = this.value.trim();
+    if (input) {
+      const escalation = escalateRoastLevel(input);
+      const amplified = sarcasmAmplifier(escalation);
+      const box = document.createElement("div");
+      box.className = "popupRoast";
+      box.innerText = amplified;
+      box.style.top = `${Math.random() * window.innerHeight}px`;
+      box.style.left = `${Math.random() * window.innerWidth}px`;
+      document.body.appendChild(box);
+      setTimeout(() => box.remove(), 6000);
+    }
+  });
+</script>
+</body>
+</html>
